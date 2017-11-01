@@ -61,7 +61,7 @@ getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
 #' @param expDes experimentalDesign object
 #' @param gReg.gr either a GRangesList or GRanges object containing genomic coordinates to import
 #' @param as.type how to return the imported data
-#' @param nthreads number of cores to use to import data (not implemented)
+#' @param nthreads number of cores to use to import data
 #' @name importBwSelection
 #' @import rtracklayer
 #' @export
@@ -78,7 +78,9 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
     }
     ## Now check validity of query
     cInfo=getChromInfo(expDes,which.chrom=levels(seqnames(bwSel)))
-    bwSel=BigWigSelection(bwSel)    
+    bwSel=BigWigSelection(bwSel)
+    cl <- makeCluster(ncores)
+    registerDoParallel(cl)
     ## Loop over each id
     bwList <- foreach::foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes))) %dopar% {
         suppressMessages(library(data.table,quietly=TRUE,verbose=FALSE))

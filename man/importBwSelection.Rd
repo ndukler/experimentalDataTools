@@ -13,7 +13,7 @@ importBwSelection(expDes, gReg.gr, as.type = "RleList", nthreads = ncores)
 
 \item{as.type}{how to return the imported data}
 
-\item{nthreads}{number of cores to use to import data (not implemented)}
+\item{nthreads}{number of cores to use to import data}
 }
 \description{
 Import bigwig files for later data retrieval.
