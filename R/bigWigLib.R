@@ -110,6 +110,7 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
 #' @param expDes experimentalDesign object
 #' @param nthreads number of cores to use to import data (not implemented)
 #' @name sumBwOverGR
+#' @import rtracklayer
 #' @export
 sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Check to see if tu.list is GRanges object, then split into stand based GRanges objects
