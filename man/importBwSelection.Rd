@@ -4,7 +4,7 @@
 \alias{importBwSelection}
 \title{Imports bigWig(s)}
 \usage{
-importBwSelection(expDes, gReg.gr, as.type = "RleList", nthreads = ncores)
+importBwSelection(expDes, gReg.gr, as.type = "RleList", nthreads = 1)
 }
 \arguments{
 \item{expDes}{experimentalDesign object}
@@ -13,7 +13,7 @@ importBwSelection(expDes, gReg.gr, as.type = "RleList", nthreads = ncores)
 
 \item{as.type}{how to return the imported data}
 
-\item{nthreads}{number of cores to use to import data}
+\item{nthreads}{number of cores to use to import data (unimplemented)}
 }
 \description{
 Import bigwig files for later data retrieval.

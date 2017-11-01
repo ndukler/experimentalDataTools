@@ -61,9 +61,11 @@ getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
 #' @param expDes experimentalDesign object
 #' @param gReg.gr either a GRangesList or GRanges object containing genomic coordinates to import
 #' @param as.type how to return the imported data
-#' @param nthreads number of cores to use to import data
+#' @param nthreads number of cores to use to import data (unimplemented)
 #' @name importBwSelection
 #' @import rtracklayer
+#' @import doParallel
+#' @import foreach
 #' @export
 importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
     fExist=file.exists(getFilepaths(expDes))
@@ -79,12 +81,11 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
     ## Now check validity of query
     cInfo=getChromInfo(expDes,which.chrom=levels(seqnames(bwSel)))
     bwSel=BigWigSelection(bwSel)
-    cl <- makeCluster(nthreads)
-    registerDoParallel(cl)
+    ## cl <- makeCluster(nthreads)
+    ## registerDoParallel(cl)
     ## Loop over each id
-    bwList <- foreach::foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes))) %dopar% {
+    bwList <- foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes)),.export=c("subset","getTable","getFilepaths")) %do% {
         suppressMessages(library(data.table,quietly=TRUE,verbose=FALSE))
-        source("experimentalDesignClass.R")
         sub.e=subset(expDes,filters=list(experiment.id=i))
         bw=list()
         ## If that id has multiple strands associated with it you can capture all of them
