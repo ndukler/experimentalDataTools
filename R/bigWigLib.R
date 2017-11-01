@@ -1,14 +1,5 @@
-## Would like to get rid of need to load libraries at some point and access functions directly from namespace
-## library(data.table)
-## library(rtracklayer)
-## library(doParallel)
-
-## source("experimentalDesignClass.R")
-
-
-
-## Splits data from binnedBigWig into list by a column in the experimental design table
-## Split catagory defaults to gid
+#' @rdname splitBw-methods
+#' @name splitBw
 methods::setMethod("splitBw",signature=c(binnedBw="binnedBigWig",f="character",to.matrix="logical"),definition = function(binnedBw,f="gid",to.matrix=FALSE){
     interTab=getTable(binnedBw@expDes)
     data.table::setkeyv(interTab,cols=f)
@@ -24,10 +15,18 @@ methods::setMethod("splitBw",signature=c(binnedBw="binnedBigWig",f="character",t
     }))
 })
 
-## Gets ranges of bigwig files
+#' Chromosome information collection
+#' 
+#' Collects the chromosomal lengths used to build all bigwigs experimental design object
+#' @param expDes experimentalDesign object
+#' @param which.chrom character vector of which chromosomes information should be collected on. Default value of NULL collects info for all chromosomes. Cannot be specified at the same time as regex.chrom.
+#' @param regex.chrom can supply regex expression matching which chromosomes information should be collected on. Cannot be specified at the same time as which.chrom.
+#' @name getChromInfo
+#' @export
 getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
     rl = rtracklayer::BigWigSelection(IRanges::IRangesList(IRanges::IRanges(-1,-1)))
     chromInfo = lapply(rtracklayer::import(con=getFilepaths(expDes)[1],selection=rl,as='RleList'),function(x){return(x@lengths)})
+    
     ## If a specific set of chromosomes is specified only get info for that list of chromosomes
     if(!is.null(which.chrom)){
         chromInfo=chromInfo[names(chromInfo) %in% which.chrom]
@@ -55,8 +54,16 @@ getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
 }
 
 
-## Imports a subset of a bigWig file
-importBwSelection <- function(expDes,gReg.gr,as.type='RleList',ncor=ncores){
+#' Imports bigWig(s)
+#' 
+#' Import bigwig files for later data retrieval. 
+#' @param expDes experimentalDesign object
+#' @param gReg.gr either a GRangesList or GRanges object containing genomic coordinates to import
+#' @param as.type how to return the imported data
+#' @param nthreads number of cores to use to import data (not implemented)
+#' @name importBwSelection
+#' @export
+importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
     fExist=file.exists(getFilepaths(expDes))
     if(sum(!fExist)>0){
         stop(paste(paste(getFilepaths(expDes)[!fExist],collapse=","),"do not exist."))
@@ -96,8 +103,15 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',ncor=ncores){
     return(bwList)
 }
 
-## Get read counts in bw regions for given list of TUs
-sumBwOverGR <- function(bins,expDes,nthreads=1,key=FALSE){
+#'  Imports bigWig(s)
+#' 
+#' Get read counts in bw regions for given list of genomic ranges. If a strand is specified for bins, only bigwigs matching that strand will be queried. If "*" strand, both "+" and "-" strands will be queried
+#' @param bins GRangesList object
+#' @param expDes experimentalDesign object
+#' @param nthreads number of cores to use to import data (not implemented)
+#' @name sumBwOverGR
+#' @export
+sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Check to see if tu.list is GRanges object, then split into stand based GRanges objects
     if(class(bins)[1]!="GRangesList"){
         stop("Bins must be in the form of a GRangesList object")
@@ -155,8 +169,9 @@ sumBwOverGR <- function(bins,expDes,nthreads=1,key=FALSE){
                bin.ids=txids,expDes=expDes,strand=st))
 }
 
-## Splits binnedBigWig into binnedBigWig List by chain so it can be easily iterated over in parallel
-setMethod("splitBwByChain",signature=c(binnedBw="binnedBigWig"),definition = function(binnedBw){
+#' @rdname seperateBinnedBwElements-methods
+#' @name seperateBinnedBwElements
+setMethod("seperateBinnedBwElements",signature=c(binnedBw="binnedBigWig"),definition = function(binnedBw){
     ## Experimental design must be copied to all elements of the list
     expD=binnedBw@expDes
     ## Sample ids must be copied to all elements of the list 

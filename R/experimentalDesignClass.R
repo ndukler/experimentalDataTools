@@ -1,18 +1,13 @@
-# library(data.table)
-
-## Define experimental design S4 class
-## group.id : left undefined, will be computed during object construction based on id.vars
-## id : an identifier for the sample
-## strand : The strand the data comes from +, - , or * for unknown or irrelevant
-## replicate.id : When there are multiple samples performed under the same experimental conditions, provide replicate id
-## filepath : where the files are located
-## metadata : a data.frame containing all other variables of interest
-## id.vars : a character vector specifying which variables in the metadata should be interperted as experimental conditions
-## metadata : a dataframe for holding all other variables of interest 
-
-
-
-## Constructor for experimental design object
+#' Create experimental design object
+#'
+#' This function creates an experimental design object that can be used to manage data
+#' @param experiment.id an identifier for the sample
+#' @param strand The strand the data comes from +, - , or * for unknown or irrelevant
+#' @param filepath where the files are located
+#' @param metadata a data.frame containing all other variables of interest
+#' @param id.vars a character vector specifying which variables in the metadata should be interperted as experimental conditions
+#' @name experimentalDesign
+#' @export 
 experimentalDesign <- function(experiment.id,filepath,strand=NULL,metadata=NULL,id.vars=NULL){
     ## Some checks and default settings
     if(length(filepath)!=length(experiment.id)){
@@ -40,28 +35,38 @@ experimentalDesign <- function(experiment.id,filepath,strand=NULL,metadata=NULL,
     methods::new("experimentalDesign",expDes=d,id.vars=id.vars)
 }
 
-## Accessor methods
+#' @rdname getFilepaths-methods
+#' @name getFilepaths
 methods::setMethod("getFilepaths",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes$filepath)
 })
 
+#' @rdname getIds-methods
+#' @name getIds
 methods::setMethod("getIds",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes$experiment.id)
 })
 
+#' @rdname getStrand-methods
+#' @name getStrand
 methods::setMethod("getStrand",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes$strand)
 })
 
+#' @rdname getGroupIds-methods
+#' @name getGroupIds
 methods::setMethod("getGroupIds",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes$gid)
 })
 
+#' @rdname getTable-methods
+#' @name getTable
 methods::setMethod("getTable",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes)
 }) 
 
-## Method for producing filtered experimental design object
+#' @rdname subset-methods
+#' @name subset
 methods::setMethod("subset",signature=c(expDes="experimentalDesign",filters="list"),definition=function(expDes,filters){
     if(sum(!names(filters) %in% colnames(getTable(expDes)))>0){
         stop(paste("Invalid filters present:",names(filters)[!names(filters) %in% colnames(getTable(expDes))]))
