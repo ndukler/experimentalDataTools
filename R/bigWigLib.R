@@ -22,10 +22,11 @@ methods::setMethod("splitBw",signature=c(binnedBw="binnedBigWig",f="character",t
 #' @param which.chrom character vector of which chromosomes information should be collected on. Default value of NULL collects info for all chromosomes. Cannot be specified at the same time as regex.chrom.
 #' @param regex.chrom can supply regex expression matching which chromosomes information should be collected on. Cannot be specified at the same time as which.chrom.
 #' @name getChromInfo
+#' @import rtracklayer
 #' @export
 getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
     rl = rtracklayer::BigWigSelection(IRanges::IRangesList(IRanges::IRanges(-1,-1)))
-    chromInfo = lapply(rtracklayer::import(con=getFilepaths(expDes)[1],selection=rl,as='RleList'),function(x){return(x@lengths)})
+    chromInfo = lapply(import(con=getFilepaths(expDes)[1],selection=rl,as='RleList'),function(x){return(x@lengths)})
     
     ## If a specific set of chromosomes is specified only get info for that list of chromosomes
     if(!is.null(which.chrom)){
@@ -62,6 +63,7 @@ getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
 #' @param as.type how to return the imported data
 #' @param nthreads number of cores to use to import data (not implemented)
 #' @name importBwSelection
+#' @import rtracklayer
 #' @export
 importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
     fExist=file.exists(getFilepaths(expDes))
@@ -76,10 +78,9 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
     }
     ## Now check validity of query
     cInfo=getChromInfo(expDes,which.chrom=levels(seqnames(bwSel)))
-    bwSel=rtracklayer::BigWigSelection(bwSel)    
+    bwSel=BigWigSelection(bwSel)    
     ## Loop over each id
     bwList <- foreach::foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes))) %dopar% {
-        ## suppressMessages(library(rtracklayer,quietly=TRUE,verbose=FALSE))
         suppressMessages(library(data.table,quietly=TRUE,verbose=FALSE))
         source("experimentalDesignClass.R")
         sub.e=subset(expDes,filters=list(experiment.id=i))
@@ -135,7 +136,7 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Get reads in each region per sample
     for(id in getIds(expDes)) {
         write(paste("Reading data from bigwig",id,"into memory..."),stdout())
-        bw.list=importBwSelection(subset(expDes,filters=list(experiment.id=id)),gReg.gr=Reduce("c",bins),ncor=nthreads)
+        bw.list=importBwSelection(subset(expDes,filters=list(experiment.id=id)),gReg.gr=Reduce("c",bins),nthreads=nthreads)
         write("Summing reads...",stdout())
         rep.count.matrix[,foo:=0]
         data.table::setnames(rep.count.matrix,"foo",id)
