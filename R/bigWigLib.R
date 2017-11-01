@@ -65,7 +65,7 @@ getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
 #' @name importBwSelection
 #' @import rtracklayer
 #' @export
-importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
+importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
     fExist=file.exists(getFilepaths(expDes))
     if(sum(!fExist)>0){
         stop(paste(paste(getFilepaths(expDes)[!fExist],collapse=","),"do not exist."))
@@ -79,7 +79,7 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
     ## Now check validity of query
     cInfo=getChromInfo(expDes,which.chrom=levels(seqnames(bwSel)))
     bwSel=BigWigSelection(bwSel)
-    cl <- makeCluster(ncores)
+    cl <- makeCluster(nthreads)
     registerDoParallel(cl)
     ## Loop over each id
     bwList <- foreach::foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes))) %dopar% {
