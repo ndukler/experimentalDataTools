@@ -110,8 +110,6 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=ncores){
 #' @param expDes experimentalDesign object
 #' @param nthreads number of cores to use to import data (not implemented)
 #' @name sumBwOverGR
-#' @importFrom GenomicRanges GRanges
-#' @importFrom GenomicRanges GRangesList
 #' @export
 sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Check to see if tu.list is GRanges object, then split into stand based GRanges objects
@@ -124,7 +122,7 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
     txids=lapply(bins,names)
     st=lapply(bins,GenomicRanges::strand) 
     ## Now combine the GRangesList into a single GRanges for efficient querying
-    bins=do.call("c",bins)
+    bins=do.call(getMethod(c, "GenomicRanges"),bins)
     ## Reset bin names to guarentee that data returned in same order as queried in bins
     names(bins)=1:length(bins)
     ## Create matrix to place counts in
