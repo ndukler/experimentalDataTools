@@ -7,6 +7,7 @@
 #' @param metadata a data.frame containing all other variables of interest
 #' @param id.vars a character vector specifying which variables in the metadata should be interperted as experimental conditions
 #' @name experimentalDesign
+#' @importFrom data.table :=
 #' @export 
 experimentalDesign <- function(experiment.id,filepath,strand=NULL,metadata=NULL,id.vars=NULL){
     ## Some checks and default settings
