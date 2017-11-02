@@ -60,15 +60,15 @@ methods::setMethod("getGroupIds",signature=c(expDes="experimentalDesign"),defini
     return(expDes@expDes$gid)
 })
 
-#' @rdname getTable-methods
-#' @name getTable
-methods::setMethod("getTable",signature=c(expDes="experimentalDesign"),definition=function(expDes){
+#' @rdname getExperimentTable-methods
+#' @name getExperimentTable
+methods::setMethod("getExperimentTable",signature=c(expDes="experimentalDesign"),definition=function(expDes){
     return(expDes@expDes)
 }) 
 
-#' @rdname subset-methods
-#' @name subset
-methods::setMethod("subset",signature=c(expDes="experimentalDesign",filters="list"),definition=function(expDes,filters){
+#' @rdname subsetExperiments-methods
+#' @name subsetExperiments
+methods::setMethod("subsetExperiments",signature=c(expDes="experimentalDesign",filters="list"),definition=function(expDes,filters){
     if(sum(!names(filters) %in% colnames(getTable(expDes)))>0){
         stop(paste("Invalid filters present:",names(filters)[!names(filters) %in% colnames(getTable(expDes))]))
     }

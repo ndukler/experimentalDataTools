@@ -64,18 +64,18 @@ methods::setGeneric("getStrand",valueClass="character",function(expDes){ methods
 #' 
 #' Return full experimental design table.
 #' @docType methods
-#' @name getTable
-#' @rdname getTable-methods
+#' @name getExperimentTable
+#' @rdname getExperimentTable-methods
 #' @export
-methods::setGeneric("getTable",valueClass="data.frame",function(expDes){ methods::standardGeneric("getTable") })
+methods::setGeneric("getExperimentTable",valueClass="data.frame",function(expDes){ methods::standardGeneric("getExperimentTable") })
 
 #' Subset experiments
 #' 
 #' Method for producing filtered experimental design object
 #' @docType methods
-#' @name subset
-#' @rdname subset-methods
+#' @name subsetExperiments
+#' @rdname subsetExperiments-methods
 #' @export
-methods::setGeneric("subset",valueClass="experimentalDesign",function(expDes,filters){ methods::standardGeneric("subset") })
+methods::setGeneric("subsetExperiments",valueClass="experimentalDesign",function(expDes,filters){ methods::standardGeneric("subsetExperiments") })
 
 
