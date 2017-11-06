@@ -84,12 +84,12 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
     ## cl <- makeCluster(nthreads)
     ## registerDoParallel(cl)
     ## Loop over each id
-    bwList <- foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes)),.export=c("subset","getTable","getFilepaths")) %do% {
+    bwList <- foreach(i=getIds(expDes),.final = function(x) setNames(x,getIds(expDes)),.export=c("subsetExperiments","getExperimentTable","getFilepaths")) %do% {
         suppressMessages(library(data.table,quietly=TRUE,verbose=FALSE))
-        sub.e=subset(expDes,filters=list(experiment.id=i))
+        sub.e=subsetExperiments(expDes,filters=list(experiment.id=i))
         bw=list()
         ## If that id has multiple strands associated with it you can capture all of them
-        for(j in 1:nrow(getTable(sub.e))){
+        for(j in 1:nrow(getExperimentTable(sub.e))){
             write(paste("Reading in",getFilepaths(sub.e)[j],"..."),stderr())
             ## Try to load bigWigs and catch and report error if fails
             bw[[getStrand(sub.e)[j]]]=tryCatch({
@@ -139,7 +139,7 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Get reads in each region per sample
     for(id in getIds(expDes)) {
         write(paste("Reading data from bigwig",id,"into memory..."),stdout())
-        bw.list=importBwSelection(subset(expDes,filters=list(experiment.id=id)),gReg.gr=Reduce("c",bins),nthreads=nthreads)
+        bw.list=importBwSelection(subsetExperiments(expDes,filters=list(experiment.id=id)),gReg.gr=Reduce("c",bins),nthreads=nthreads)
         write("Summing reads...",stdout())
         rep.count.matrix[,foo:=0]
         data.table::setnames(rep.count.matrix,"foo",id)

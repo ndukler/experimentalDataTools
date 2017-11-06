@@ -3,7 +3,7 @@ methods::setClass("experimentalDesign",
                   slots=c(expDes='data.table', id.vars = "character"),
                   validity=function(object){
                       errors <- character()
-                      num.entries <- nrow(getExperimentalTable(object))
+                      num.entries <- nrow(object@expDes)
                       if (num.entries == 0) {
                           msg <- paste("No valid entries in experimental design table.")
                           errors <- c(errors, msg)
