@@ -69,10 +69,10 @@ methods::setMethod("getExperimentTable",signature=c(expDes="experimentalDesign")
 #' @rdname subsetExperiments-methods
 #' @name subsetExperiments
 methods::setMethod("subsetExperiments",signature=c(expDes="experimentalDesign",filters="list"),definition=function(expDes,filters){
-    if(sum(!names(filters) %in% colnames(getTable(expDes)))>0){
-        stop(paste("Invalid filters present:",names(filters)[!names(filters) %in% colnames(getTable(expDes))]))
+    if(sum(!names(filters) %in% colnames(getExperimentalTable(expDes)))>0){
+        stop(paste("Invalid filters present:",names(filters)[!names(filters) %in% colnames(getExperimentalTable(expDes))]))
     }
-    sub=getTable(expDes)
+    sub=getExperimentalTable(expDes)
     ind = !logical(nrow(sub))
     for(n in names(filters)){
         ind = ind & sub[[n]] %in% filters[[n]]
