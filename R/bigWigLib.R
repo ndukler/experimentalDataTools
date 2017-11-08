@@ -1,7 +1,7 @@
 #' @rdname splitBw-methods
 #' @name splitBw
 methods::setMethod("splitBw",signature=c(binnedBw="binnedBigWig",f="character",to.matrix="logical"),definition = function(binnedBw,f="gid",to.matrix=FALSE){
-    interTab=getTable(binnedBw@expDes)
+    interTab=getExperimentTable(binnedBw@expDes)
     data.table::setkeyv(interTab,cols=f)
     l=unique(interTab[[f]])
     return(lapply(binnedBw@counts, function(x){
