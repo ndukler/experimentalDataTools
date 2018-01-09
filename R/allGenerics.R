@@ -7,9 +7,10 @@
 #' @docType methods
 #' @name splitBw
 #' @rdname splitBw-methods
+#' @importFrom methods .valueClassTest
 #' @export
 methods::setGeneric("splitBw", function(binnedBw,f,to.matrix) {
-    methods::standardGeneric("splitBw")
+    standardGeneric("splitBw")
 })
 
 #'  Split and clone binnedBigWig
@@ -21,7 +22,7 @@ methods::setGeneric("splitBw", function(binnedBw,f,to.matrix) {
 #' @rdname seperateBinnedBwElements-methods
 #' @export
 methods::setGeneric("seperateBinnedBwElements", function(binnedBw) {
-    methods::standardGeneric("seperateBinnedBwElements")
+    standardGeneric("seperateBinnedBwElements")
 })
 
 #' Accessor function for experimental design object
@@ -31,7 +32,7 @@ methods::setGeneric("seperateBinnedBwElements", function(binnedBw) {
 #' @name getFilepaths
 #' @rdname getFilepaths-methods
 #' @export
-methods::setGeneric("getFilepaths",valueClass="character",function(expDes){ methods::standardGeneric("getFilepaths") })
+methods::setGeneric("getFilepaths",valueClass="character",function(expDes){ standardGeneric("getFilepaths") })
 
 #' Accessor function for experimental design object
 #' 
@@ -40,7 +41,7 @@ methods::setGeneric("getFilepaths",valueClass="character",function(expDes){ meth
 #' @name getIds
 #' @rdname getIds-methods
 #' @export
-methods::setGeneric("getIds",valueClass="character",function(expDes){ methods::standardGeneric("getIds") })
+methods::setGeneric("getIds",valueClass="character",function(expDes){ standardGeneric("getIds") })
 
 #' Accessor function for experimental design object
 #' 
@@ -49,7 +50,7 @@ methods::setGeneric("getIds",valueClass="character",function(expDes){ methods::s
 #' @name getGroupIds
 #' @rdname getGroupIds-methods
 #' @export
-methods::setGeneric("getGroupIds",valueClass="character",function(expDes){ methods::standardGeneric("getGroupIds") })
+methods::setGeneric("getGroupIds",valueClass="character",function(expDes){ standardGeneric("getGroupIds") })
 
 #' Accessor function for experimental design object
 #'
@@ -58,7 +59,7 @@ methods::setGeneric("getGroupIds",valueClass="character",function(expDes){ metho
 #' @name getStrand
 #' @rdname getStrand-methods
 #' @export
-methods::setGeneric("getStrand",valueClass="character",function(expDes){ methods::standardGeneric("getStrand") })
+methods::setGeneric("getStrand",valueClass="character",function(expDes){ standardGeneric("getStrand") })
 
 #' Accessor function for experimental design object
 #' 
@@ -67,7 +68,7 @@ methods::setGeneric("getStrand",valueClass="character",function(expDes){ methods
 #' @name getExperimentTable
 #' @rdname getExperimentTable-methods
 #' @export
-methods::setGeneric("getExperimentTable",valueClass="data.frame",function(expDes){ methods::standardGeneric("getExperimentTable") })
+methods::setGeneric("getExperimentTable",valueClass="data.frame",function(expDes){ standardGeneric("getExperimentTable") })
 
 #' Subset experiments
 #' 
@@ -76,6 +77,6 @@ methods::setGeneric("getExperimentTable",valueClass="data.frame",function(expDes
 #' @name subsetExperiments
 #' @rdname subsetExperiments-methods
 #' @export
-methods::setGeneric("subsetExperiments",valueClass="experimentalDesign",function(expDes,filters){ methods::standardGeneric("subsetExperiments") })
+methods::setGeneric("subsetExperiments",valueClass="experimentalDesign",function(expDes,filters){ standardGeneric("subsetExperiments") })
 
 

@@ -79,7 +79,7 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
         bwSel=gReg.gr
     }
     ## Now check validity of query
-    cInfo=getChromInfo(expDes,which.chrom=levels(seqnames(bwSel)))
+    cInfo=getChromInfo(expDes,which.chrom=levels(GenomicRanges::seqnames(bwSel)))
     bwSel=BigWigSelection(bwSel)
     ## cl <- makeCluster(nthreads)
     ## registerDoParallel(cl)
@@ -135,7 +135,6 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
     data.table::setkey(rep.count.matrix,"txid")
     ## split bins by strand
     bins=split(bins,rtracklayer::strand(bins))
-    
     ## Get reads in each region per sample
     for(id in getIds(expDes)) {
         write(paste("Reading data from bigwig",id,"into memory..."),stdout())
@@ -147,13 +146,13 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
         if(!is.null(bins[["+"]])){
             ## If the TU is on the plus stand get only reads from the plus strand
             for(chr in unique(GenomicRanges::seqnames(bins[["+"]]))) {
-                read.sum=sum(Views(bw.list[[id]][["+"]][[as.character(chr)]], IRanges::ranges(bins[["+"]][seqnames(bins[["+"]]) == chr])))
+                read.sum=sum(Views(bw.list[[id]][["+"]][[as.character(chr)]], IRanges::ranges(bins[["+"]][GenomicRanges::seqnames(bins[["+"]]) == chr])))
                 rep.count.matrix[names(read.sum),id]=as.numeric(read.sum)
             }
         }
         ## If the TU is on the minus stand get only reads from the minus strand
         if(!is.null(bins[["-"]])){
-            for(chr in unique(seqnames(bins[["-"]]))) {
+            for(chr in unique(GenomicRanges::seqnames(bins[["-"]]))) {
                 read.sum=sum(IRanges::Views(bw.list[[id]][["-"]][[as.character(chr)]], ranges(bins[["-"]][GenomicRanges::seqnames(bins[["-"]]) == chr])))
                 rep.count.matrix[names(read.sum),id]=as.numeric(read.sum)
             }
@@ -161,7 +160,7 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
         ## If the TU is on the star stand get reads from all strands
         if(!is.null(bins[["*"]])){
             for(chr in unique(GenomicRanges::seqnames(bins[["*"]]))) {
-                read.sum=numeric(length(bins[["*"]][seqnames(bins[["*"]]) == chr]))
+                read.sum=numeric(length(bins[["*"]][GenomicRanges::seqnames(bins[["*"]]) == chr]))
                 for(s in names(bw.list[[id]])){
                     read.sum=read.sum+abs(sum(IRanges::Views(bw.list[[id]][[s]][[as.character(chr)]], ranges(bins[["*"]][GenomicRanges::seqnames(bins[["*"]]) == chr]))))
                 }
