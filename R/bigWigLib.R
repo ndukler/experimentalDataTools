@@ -24,36 +24,43 @@ methods::setMethod("splitBw",signature=c(binnedBw="binnedBigWig",f="character",t
 #' @name getChromInfo
 #' @import rtracklayer
 #' @export
-getChromInfo <- function(expDes,which.chrom=NULL,regex.chrom=NULL){
-    rl = rtracklayer::BigWigSelection(IRanges::IRangesList(IRanges::IRanges(-1,-1)))
-    chromInfo = lapply(import(con=getFilepaths(expDes)[1],selection=rl,as='RleList'),function(x){return(x@lengths)})
-    
-    ## If a specific set of chromosomes is specified only get info for that list of chromosomes
-    if(!is.null(which.chrom)){
-        chromInfo=chromInfo[names(chromInfo) %in% which.chrom]
+#'
+getChromInfo <- function (expDes, which.chrom = NULL, regex.chrom = NULL) 
+{
+    ci = rtracklayer::seqinfo(BigWigFile(expDes@expDes$filepath[1]))
+    chromInfo = data.table::data.table(chrom = ci@seqnames, length = ci@seqlengths)
+    data.table::setkey(chromInfo, "chrom")
+    if (!is.null(which.chrom)) {
+        chromInfo = chromInfo[which.chrom]
     }
-    if(!is.null(regex.chrom)){
-        chromInfo=chromInfo[grep(regex.chrom,names(chromInfo))]
+    if (!is.null(regex.chrom)) {
+        chromInfo = chromInfo[grep(regex.chrom, chrom)]
     }
-    if(length(getIds(expDes))>1){
-        for(i in 2:nrow(expDes@expDes)){
-            cur=lapply(rtracklayer::import(con=getFilepaths(expDes)[i],selection=rl,as='RleList'),function(x){return(x@lengths)})
-            if(!is.null(which.chrom)){
-                cur=cur[names(cur) %in% which.chrom]
+    if(any(is.na(chromInfo$length))){
+        missing.chrom=chromInfo[is.na(length)]$chrom
+        stop(paste("Bigwig file is missing chromosomes present in the query file:",paste(missing.chrom,collapse=",")))
+    }
+    if (length(getIds(expDes)) > 1) {
+        for (i in 2:nrow(expDes@expDes)) {
+            cur = rtracklayer::seqinfo(BigWigFile(expDes@expDes$filepath[i]))
+            cur = data.table::data.table(chrom = cur@seqnames, 
+                length = cur@seqlengths)
+            data.table::setkey(cur, "chrom")
+            if (!is.null(which.chrom)) {
+                cur = cur[which.chrom]
             }
-            if(!is.null(regex.chrom)){
-                cur=cur[grep(regex.chrom,names(cur))]
+            if (!is.null(regex.chrom)) {
+                cur = cur[grep(regex.chrom, cur$chrom)]
             }
-            if(sum(!unlist(Map("==",chromInfo,cur)))>0){
-                stop(paste("Bigwig", getFilepaths(expDes)[i],"was built with a different chromInfo file than", getFilepaths(expDes)[i]))
+            if (any(cur$length != chromInfo$length)) {
+                stop(paste("Bigwig", getFilepaths(expDes)[i], 
+                  "was built with a different chromInfo file than", 
+                  getFilepaths(expDes)[i]))
             }
         }
     }
-    ci=data.table::data.table(chrom=names(chromInfo),length=unlist(chromInfo))
-    data.table::setkey(ci,"chrom")
-    return(methods::new('chromInfo',info=ci))
+    return(methods::new("chromInfo", info = chromInfo))
 }
-
 
 #' Imports bigWig(s)
 #' 
@@ -74,9 +81,9 @@ importBwSelection <- function(expDes,gReg.gr,as.type='RleList',nthreads=1){
     }
     bwList=list()
     if(is.list(gReg.gr)){
-        bwSel=Reduce(c,gReg.gr)
+        bwSel=IRanges::reduce(Reduce("c",gReg.gr))
     } else {
-        bwSel=gReg.gr
+        bwSel=IRanges::reduce(gReg.gr)
     }
     ## Now check validity of query
     cInfo=getChromInfo(expDes,which.chrom=levels(GenomicRanges::seqnames(bwSel)))
@@ -138,12 +145,12 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
     ## Get reads in each region per sample
     for(id in getIds(expDes)) {
         write(paste("Reading data from bigwig",id,"into memory..."),stdout())
-        bw.list=importBwSelection(subsetExperiments(expDes,filters=list(experiment.id=id)),gReg.gr=Reduce("c",bins),nthreads=nthreads)
+        bw.list=importBwSelection(subsetExperiments(expDes,filters=list(experiment.id=id)),gReg.gr=IRanges::reduce(Reduce("c",bins)))
         write("Summing reads...",stdout())
         rep.count.matrix[,foo:=0]
         data.table::setnames(rep.count.matrix,"foo",id)
         ## Loop over chromosomes on both strands
-        if(!is.null(bins[["+"]])){
+        if(!is.null(bins[["+"]]) && length(bins[["+"]])>0){
             ## If the TU is on the plus stand get only reads from the plus strand
             for(chr in unique(GenomicRanges::seqnames(bins[["+"]]))) {
                 read.sum=sum(Views(bw.list[[id]][["+"]][[as.character(chr)]], IRanges::ranges(bins[["+"]][GenomicRanges::seqnames(bins[["+"]]) == chr])))
@@ -151,14 +158,14 @@ sumBwOverGR <- function(bins,expDes,nthreads=1){
             }
         }
         ## If the TU is on the minus stand get only reads from the minus strand
-        if(!is.null(bins[["-"]])){
+        if(!is.null(bins[["-"]]) && length(bins[["-"]])>0){
             for(chr in unique(GenomicRanges::seqnames(bins[["-"]]))) {
                 read.sum=sum(IRanges::Views(bw.list[[id]][["-"]][[as.character(chr)]], ranges(bins[["-"]][GenomicRanges::seqnames(bins[["-"]]) == chr])))
                 rep.count.matrix[names(read.sum),id]=as.numeric(read.sum)
             }
         }
         ## If the TU is on the star stand get reads from all strands
-        if(!is.null(bins[["*"]])){
+        if(!is.null(bins[["*"]]) && length(bins[["*"]])>0){
             for(chr in unique(GenomicRanges::seqnames(bins[["*"]]))) {
                 read.sum=numeric(length(bins[["*"]][GenomicRanges::seqnames(bins[["*"]]) == chr]))
                 for(s in names(bw.list[[id]])){
